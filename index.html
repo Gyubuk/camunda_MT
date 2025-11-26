@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>MT 실시간 알림</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background:#f6f7f9;}
+    .card { 
+      background: #fff; 
+      padding: 20px; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+      max-width: 700px;
+      margin:auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>MT 자동화 알림 (Camunda → Web Dashboard)</h1>
+<p>아래는 Camunda가 보낸 최신 메시지를 실시간으로 보여줍니다.</p>
+
+<div id="content" class="card">불러오는 중...</div>
+
+<script>
+async function loadData() {
+  const url = "https://webhook.site/7e7f5809-9040-482b-ad07-619211f195cb";
+  
+  const api = `${url}/requests?sorting=newest`;
+  const response = await fetch(api);
+  const data = await response.json();
+
+  const latest = data.data.find(req => req.method === "POST");
+
+  if (!latest) {
+    document.getElementById("content").innerHTML = "아직 알림이 없습니다.";
+    return;
+  }
+
+  document.getElementById("content").innerHTML = `
+    <h2>최신 Camunda 알림</h2>
+    <pre>${latest.content}</pre>
+  `;
+}
+
+loadData();
+setInterval(loadData, 3000);
+</script>
+
+</body>
+</html>
