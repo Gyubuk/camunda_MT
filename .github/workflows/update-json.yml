@@ -1,0 +1,25 @@
+name: Update MT Notice JSON
+
+on:
+  repository_dispatch:
+    types: [update_mt_notice]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Update latest.json
+        run: |
+          echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
+
+      - name: Commit changes
+        run: |
+          git config user.name "MT Bot"
+          git config user.email "bot@example.com"
+          git add data/latest.json
+          git commit -m "Update MT notice"
+          git push
