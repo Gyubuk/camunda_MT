@@ -4,22 +4,20 @@ on:
   repository_dispatch:
     types: [update_camunda]
 
-permissions:
-  contents: write   # 🔥 이 줄이 핵심!
-
 jobs:
   update-json:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@8ade135a8cf7de99eb8f2dba06d2c590a8bb05d4
 
       - name: Update latest.json
         run: |
           echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@bf3487ec41f13a6d3f89b4a6b8df79eefdf70b9a
         with:
           commit_message: "Update data from Camunda"
           file_pattern: data/latest.json
