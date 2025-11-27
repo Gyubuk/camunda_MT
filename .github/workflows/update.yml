@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Update latest.json
+      - name: Create latest.json from Camunda payload
         run: |
           echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
 
