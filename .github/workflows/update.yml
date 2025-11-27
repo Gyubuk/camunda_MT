@@ -8,23 +8,21 @@ jobs:
   update-json:
     runs-on: ubuntu-latest
     
-    # 깃허브 봇이 코드를 push 할 수 있도록 권한 부여
     permissions:
       contents: write
 
     steps:
-      # 1. 체크아웃: v4 버전 사용 (다운로드 오류 해결 기대)
+      # 해결 포인트: @v4 대신 40자리 SHA 코드를 직접 사용했습니다.
+      # (이 코드는 actions/checkout@v4.2.2 버전에 해당합니다)
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      # 2. JSON 파일 업데이트
       - name: Update latest.json
         run: |
-          # data 폴더가 없으면 생성 (에러 방지)
           mkdir -p data
           echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
 
-      # 3. 변경 사항 커밋 및 푸시 (외부 액션 대신 직접 명령어로 실행하여 권한 문제 해결)
+      # 외부 액션 사용 금지 정책을 피하기 위해 스크립트로 직접 커밋
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
@@ -32,7 +30,6 @@ jobs:
           
           git add data/latest.json
           
-          # 변경 사항이 있을 때만 커밋 (빈 커밋 에러 방지)
           if ! git diff-index --quiet HEAD; then
             git commit -m "Update data from Camunda"
             git push
