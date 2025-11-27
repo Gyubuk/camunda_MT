@@ -7,17 +7,35 @@ on:
 jobs:
   update-json:
     runs-on: ubuntu-latest
+    
+    # 깃허브 봇이 코드를 push 할 수 있도록 권한 부여
+    permissions:
+      contents: write
 
     steps:
+      # 1. 체크아웃: v4 버전 사용 (다운로드 오류 해결 기대)
       - name: Checkout
-        uses: actions/checkout@8ade135a8cf7de99eb8f2dba06d2c590a8bb05d4
+        uses: actions/checkout@v4
 
+      # 2. JSON 파일 업데이트
       - name: Update latest.json
         run: |
+          # data 폴더가 없으면 생성 (에러 방지)
+          mkdir -p data
           echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
 
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@bf3487ec41f13a6d3f89b4a6b8df79eefdf70b9a
-        with:
-          commit_message: "Update data from Camunda"
-          file_pattern: data/latest.json
+      # 3. 변경 사항 커밋 및 푸시 (외부 액션 대신 직접 명령어로 실행하여 권한 문제 해결)
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add data/latest.json
+          
+          # 변경 사항이 있을 때만 커밋 (빈 커밋 에러 방지)
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Update data from Camunda"
+            git push
+          else
+            echo "No changes to commit"
+          fi
