@@ -4,13 +4,17 @@ on:
   repository_dispatch:
     types: [update_camunda]
 
+permissions:
+  contents: write   # 🔥 이 줄이 핵심!
+
 jobs:
   update-json:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create latest.json from Camunda payload
+      - name: Update latest.json
         run: |
           echo '${{ toJson(github.event.client_payload) }}' > data/latest.json
 
